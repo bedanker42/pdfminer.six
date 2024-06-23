@@ -560,11 +560,12 @@ class LTTextLineHorizontal(LTTextLine):
             if (
                 isinstance(obj, LTTextLineHorizontal)
                 and self._is_same_height_as(obj, tolerance=d)
-                and (
-                    self._is_left_aligned_with(obj, tolerance=d)
-                    or self._is_right_aligned_with(obj, tolerance=d)
-                    or self._is_centrally_aligned_with(obj, tolerance=d)
-                )
+                # and (
+                #     self._is_left_aligned_with(obj, tolerance=d)
+                #     or self._is_right_aligned_with(obj, tolerance=d)
+                #     or self._is_centrally_aligned_with(obj, tolerance=d)
+                # )
+                and self.is_hoverlap(obj)
             )
         ]
 
