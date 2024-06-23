@@ -138,6 +138,7 @@ def extract_text(
     pdf_file: FileOrName,
     password: str = "",
     page_numbers: Optional[Container[int]] = None,
+    page_start: Optional[int] = None,
     maxpages: int = 0,
     caching: bool = True,
     codec: str = "utf-8",
@@ -149,6 +150,7 @@ def extract_text(
         to be worked on.
     :param password: For encrypted PDFs, the password to decrypt.
     :param page_numbers: List of zero-indexed page numbers to extract.
+    :param page_start: Page number to start extracting from (zero-indexed).
     :param maxpages: The maximum number of pages to parse
     :param caching: If resources should be cached
     :param codec: Text decoding codec
@@ -168,6 +170,7 @@ def extract_text(
         for page in PDFPage.get_pages(
             fp,
             page_numbers,
+            page_start=page_start,
             maxpages=maxpages,
             password=password,
             caching=caching,
@@ -181,6 +184,8 @@ def extract_pages(
     pdf_file: FileOrName,
     password: str = "",
     page_numbers: Optional[Container[int]] = None,
+    page_start: Optional[int] = None,
+    page_end: Optional[int] = None,
     maxpages: int = 0,
     caching: bool = True,
     laparams: Optional[LAParams] = None,
@@ -191,6 +196,8 @@ def extract_pages(
         to be worked on.
     :param password: For encrypted PDFs, the password to decrypt.
     :param page_numbers: List of zero-indexed page numbers to extract.
+    :param page_start: Page number to start extracting from (zero-indexed).
+    :param page_end: Page number to start extracting from (zero-indexed).
     :param maxpages: The maximum number of pages to parse
     :param caching: If resources should be cached
     :param laparams: An LAParams object from pdfminer.layout. If None, uses
@@ -206,7 +213,13 @@ def extract_pages(
         device = PDFPageAggregator(resource_manager, laparams=laparams)
         interpreter = PDFPageInterpreter(resource_manager, device)
         for page in PDFPage.get_pages(
-            fp, page_numbers, maxpages=maxpages, password=password, caching=caching
+            fp,
+            page_numbers,
+            maxpages=maxpages,
+            password=password,
+            caching=caching,
+            pagestart=page_start,
+            pageend=page_end,
         ):
             interpreter.process_page(page)
             layout = device.get_result()

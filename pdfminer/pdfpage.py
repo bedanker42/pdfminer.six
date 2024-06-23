@@ -99,7 +99,7 @@ class PDFPage:
                 # PDFObjRef or PDFStream, but neither is valid for dict_value.
                 objid = obj.objid  # type: ignore[attr-defined]
                 tree = dict_value(obj).copy()
-            for (k, v) in parent.items():
+            for k, v in parent.items():
                 if k in cls.INHERITABLE_ATTRS and k not in tree:
                     tree[k] = v
 
@@ -123,7 +123,7 @@ class PDFPage:
         pages = False
         if "Pages" in document.catalog:
             objects = search(document.catalog["Pages"], document.catalog)
-            for (objid, tree) in objects:
+            for objid, tree in objects:
                 yield cls(document, objid, tree, next(page_labels))
                 pages = True
         if not pages:
@@ -143,6 +143,8 @@ class PDFPage:
         cls,
         fp: BinaryIO,
         pagenos: Optional[Container[int]] = None,
+        pagestart: Optional[int] = None,
+        pageend: Optional[int] = None,
         maxpages: int = 0,
         password: str = "",
         caching: bool = True,
@@ -168,8 +170,12 @@ class PDFPage:
                 )
                 log.warning(warning_msg)
         # Process each page contained in the document.
-        for (pageno, page) in enumerate(cls.create_pages(doc)):
+        for pageno, page in enumerate(cls.create_pages(doc)):
             if pagenos and (pageno not in pagenos):
+                continue
+            if pagestart and pageno < pagestart:
+                continue
+            if pageend and pageno >= pageend:
                 continue
             yield page
             if maxpages and maxpages <= pageno + 1:
